@@ -1,0 +1,33 @@
+name: AutoPHP installer smoke test
+on:
+  push:
+    branches: [main, feature/cli-installer-hardening]
+  pull_request:
+jobs:
+  install-smoke:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mysqli, zip
+          coverage: none
+      - name: Syntax and preflight
+        run: |
+          php -l install.php
+          php install.php --check
+      - name: Dry-run and isolated install
+        run: |
+          php install.php --target="$RUNNER_TEMP/autophp-install" --dry-run
+          test ! -e "$RUNNER_TEMP/autophp-install"
+          php install.php --target="$RUNNER_TEMP/autophp-install"
+          test -f "$RUNNER_TEMP/autophp-install/index.php"
+          test -f "$RUNNER_TEMP/autophp-install/dbclass.php"
+          test ! -e "$RUNNER_TEMP/autophp-install/.git"
+          if php install.php --target="$RUNNER_TEMP/autophp-install"; then
+            echo 'Unexpected overwrite was permitted'
+            exit 1
+          fi
