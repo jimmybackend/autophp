@@ -1,3 +1,26 @@
+<?php
+$adminSecret = getenv('AUTOPHP_ADMIN_PASSWORD');
+if (!is_string($adminSecret) || $adminSecret === '') {
+    http_response_code(503);
+    exit('Configure AUTOPHP_ADMIN_PASSWORD before using AutoPHP.');
+}
+$providedSecret = $_SERVER['PHP_AUTH_PW'] ?? '';
+if (!is_string($providedSecret) || !hash_equals($adminSecret, $providedSecret)) {
+    header('WWW-Authenticate: Basic realm="AutoPHP"');
+    http_response_code(401);
+    exit('Authentication required.');
+}
+header('Cache-Control: no-store');
+foreach (['db','tabla','id','tabla2','idt','campo'] as $parameter) {
+    if (!isset($_POST[$parameter])) { continue; }
+    if (!is_string($_POST[$parameter])) { http_response_code(400); exit('Invalid input.'); }
+    $identifier = $_POST[$parameter];
+    if ($identifier !== '' && $identifier !== '0' && !preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/D', $identifier)) {
+        http_response_code(400);
+        exit('Invalid SQL identifier.');
+    }
+}
+?>
 <!DOCTYPE html>
 
 <html lang="en">
@@ -80,7 +103,7 @@
 
 <?php
 
-$C        =$_GET['C'];
+$C        =$_POST['C'];
 
 if($C==1){
 
@@ -96,15 +119,15 @@ if($C==1){
 
 <?php
 
-$tabla     =$_GET['tabla'];
+$tabla     =$_POST['tabla'];
 
-$id        =$_GET['id'];
+$id        =$_POST['id'];
 
-$tabla2    =$_GET['tabla2'];
+$tabla2    =$_POST['tabla2'];
 
-$idt       =$_GET['idt'];
+$idt       =$_POST['idt'];
 
-$campo     =$_GET['campo'];
+$campo     =$_POST['campo'];
 
 
 
@@ -112,13 +135,13 @@ include ('dbclass2.php');
 
 $dev = new DevC();
 
-$dev->host=$_GET['server'];
+$dev->host=getenv('AUTOPHP_DB_HOST') ?: '127.0.0.1';
 
-$dev->user=$_GET['user'];
+$dev->user=getenv('AUTOPHP_DB_USER') ?: '';
 
-$dev->password=$_GET['pass'];
+$dev->password=getenv('AUTOPHP_DB_PASSWORD') ?: '';
 
-$dev->database=$_GET['db'];
+$dev->database=getenv('AUTOPHP_DB_NAME') ?: '';
 
 
 
@@ -138,15 +161,15 @@ $dev->database=$_GET['db'];
 
 <?php
 
-$tabla       =$_GET['tabla'];
+$tabla       =$_POST['tabla'];
 
-$tabla2      =$_GET['tabla2'];
+$tabla2      =$_POST['tabla2'];
 
-$id          =$_GET['id'];
+$id          =$_POST['id'];
 
-$idt          =$_GET['idt'];
+$idt          =$_POST['idt'];
 
-$ADD         =$_GET['ADD'];
+$ADD         =$_POST['ADD'];
 
 if($ADD==1){
 
@@ -206,15 +229,15 @@ $data[12]=$_REQUEST['Ident2'];
 
 <?php
 
-$tabla       =$_GET['tabla'];
+$tabla       =$_POST['tabla'];
 
-$tabla2      =$_GET['tabla2'];
+$tabla2      =$_POST['tabla2'];
 
-$id          =$_GET['id'];
+$id          =$_POST['id'];
 
 $dato          =2;
 
-$UPD         =$_GET['UPD'];
+$UPD         =$_POST['UPD'];
 
 if($UPD==1){
 
@@ -274,13 +297,13 @@ $data[12]=$_REQUEST['Ident2'];
 
 <?php
 
-$tabla       =$_GET['tabla'];
+$tabla       =$_POST['tabla'];
 
-$id          =$_GET['id'];
+$id          =$_POST['id'];
 
-$dato        =$_GET['dato'];
+$dato        =$_POST['dato'];
 
-$DEL         =$_GET['DEL'];
+$DEL         =$_POST['DEL'];
 
 if($DEL==1){
 
@@ -308,11 +331,11 @@ if($DEL==1){
 
 <?php
 
-$tabla       =$_GET['tabla'];
+$tabla       =$_POST['tabla'];
 
-$id          =$_GET['id'];
+$id          =$_POST['id'];
 
-$SEL      =$_GET['SEL'];
+$SEL      =$_POST['SEL'];
 
 if($SEL==1){
 
@@ -346,13 +369,13 @@ if($SEL==1){
 
 <?php
 
-$tabla       =$_GET['tabla'];
+$tabla       =$_POST['tabla'];
 
-$id          =$_GET['id'];
+$id          =$_POST['id'];
 
-$dato        =$_GET['dato'];
+$dato        =$_POST['dato'];
 
-$SEA         =$_GET['SEA'];
+$SEA         =$_POST['SEA'];
 
 if($SEA==1){
 
@@ -376,7 +399,7 @@ if($SEA==1){
 
 <?php
 
-$tabla       =$_GET['tabla'];
+$tabla       =$_POST['tabla'];
 
 $dev->CLASE($tabla);
 
@@ -420,7 +443,7 @@ function agregar_zip2($dir, $zip) {
 
 
 
-$tabla       =$_GET['tabla'];
+$tabla       =$_POST['tabla'];
 
 $dir = "php2/".$tabla."/";
 
@@ -496,29 +519,29 @@ if ($zip->open($archivoZip, ZIPARCHIVE::CREATE) === true) {
 
 <?php
 
-$E        =$_GET['E'];
+$E        =$_POST['E'];
 
 if($E==1){
 
    
 
-  $servidor  =$_GET['server']; 
+  $servidor  =getenv('AUTOPHP_DB_HOST') ?: '127.0.0.1'; 
 
-  $usuario   =$_GET['user'];
+  $usuario   =getenv('AUTOPHP_DB_USER') ?: '';
 
-  $clave     =$_GET['pass'];
+  $clave     =getenv('AUTOPHP_DB_PASSWORD') ?: '';
 
-  $basedatos =$_GET['db'];
+  $basedatos =getenv('AUTOPHP_DB_NAME') ?: '';
 
-  $tabla     =$_GET['tabla'];
+  $tabla     =$_POST['tabla'];
 
-  $usu1      =$_GET['id'];
+  $usu1      =$_POST['id'];
 
-  $tabla2    =$_GET['tabla2'];
+  $tabla2    =$_POST['tabla2'];
 
-  $idt       =$_GET['idt'];
+  $idt       =$_POST['idt'];
 
-  $campo     =$_GET['campo'];
+  $campo     =$_POST['campo'];
 
   
 
@@ -680,11 +703,8 @@ mysqli_free_result($resultado);
 
 <h2>Auto-php</h2>
 
-<form action="index.php" method="GET">
+<form action="index.php" method="POST">
   
-<div><input type="text" name="server" placeholder="Servidor" value="0.0.0.0"  required></div>
-<div><input type="text" name="user" placeholder="Usuario" value="root"  required></div>
-<div><input type="password" name="pass" placeholder="Password" value="root"  required></div>
 
 <div class="row mt-1" >
 <div class="col">Database: 
@@ -692,7 +712,7 @@ mysqli_free_result($resultado);
 <OPTION VALUE="0">Choose an database</OPTION>
 <?php
 include "db.php";
-$selCombo1= utf8_decode($_GET['db']);
+$selCombo1= utf8_decode($_POST['db']);
 $resulta=mysqli_query($db_connection, "Show databases");
 while ($row =mysqli_fetch_array($resulta))
 { 
@@ -720,8 +740,8 @@ mysqli_close($db_connection);
 <OPTION VALUE="0">Choose an table</OPTION>
 <?php
 include "db.php";
-$selCombo1= utf8_decode($_GET['db']);
-$selCombo2= utf8_decode($_GET['tabla']);
+$selCombo1= utf8_decode($_POST['db']);
+$selCombo2= utf8_decode($_POST['tabla']);
 $resultado=mysqli_query($db_connection, "Show tables " );
 while ($row =mysqli_fetch_array($resultado))
 { 
@@ -748,9 +768,9 @@ mysqli_close($db_connection);
 <SELECT NAME="id" SIZE=1 onchange = "this.form.submit()"> 
 <?php
 include "db.php";
-$selCombo1= utf8_decode($_GET['db']);
-$selCombo2= utf8_decode($_GET['tabla']);
-$selCombo3= utf8_decode($_GET['id']);
+$selCombo1= utf8_decode($_POST['db']);
+$selCombo2= utf8_decode($_POST['tabla']);
+$selCombo3= utf8_decode($_POST['id']);
 $resultado=mysqli_query($db_connection, "describe ".$selCombo2." " );
 while ($row =mysqli_fetch_array($resultado))
 { 
@@ -779,8 +799,8 @@ mysqli_close($db_connection);
 <OPTION VALUE="0">Choose an master table</OPTION>
 <?php
 include "db.php";
-$selCombo1= utf8_decode($_GET['db']);
-$selCombo4= utf8_decode($_GET['tabla2']);
+$selCombo1= utf8_decode($_POST['db']);
+$selCombo4= utf8_decode($_POST['tabla2']);
 $resultado=mysqli_query($db_connection, "Show tables " );
 while ($row =mysqli_fetch_array($resultado))
 { 
@@ -806,8 +826,8 @@ mysqli_close($db_connection);
 <SELECT NAME="idt" SIZE=1 onchange = "this.form.submit()"> 
 <?php
 include "db.php";
-$selCombo4= utf8_decode($_GET['tabla2']);
-$selCombo5= utf8_decode($_GET['idt']);
+$selCombo4= utf8_decode($_POST['tabla2']);
+$selCombo5= utf8_decode($_POST['idt']);
 $resultado=mysqli_query($db_connection, "describe ".$selCombo4." " );
 while ($row =mysqli_fetch_array($resultado))
 { 
@@ -836,8 +856,8 @@ mysqli_close($db_connection);
 <OPTION VALUE="0">Choose an row</OPTION>
 <?php
 include "db.php";
-$selCombo4= utf8_decode($_GET['tabla2']);
-$selCombo6= utf8_decode($_GET['campo']);
+$selCombo4= utf8_decode($_POST['tabla2']);
+$selCombo6= utf8_decode($_POST['campo']);
 $resultado=mysqli_query($db_connection, "describe ".$selCombo4." " );
 while ($row =mysqli_fetch_array($resultado))
 { 

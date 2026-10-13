@@ -6,13 +6,13 @@ class DevC{
 
 
 
-public $host   = '0.0.0.0';
+public $host   = '127.0.0.1';
 
-public $user   = 'root';
+public $user   = '';
 
-public $password   = 'root';
+public $password   = '';
 
-public $database   = 'dantask';      
+public $database   = '';      
 
 public $dbConnect  = false;
 
@@ -21,6 +21,14 @@ private static $conn;
 
 
 public function __construct(){
+        $this->host = getenv('AUTOPHP_DB_HOST') ?: '127.0.0.1';
+        $this->user = getenv('AUTOPHP_DB_USER') ?: '';
+        $this->password = getenv('AUTOPHP_DB_PASSWORD') ?: '';
+        $this->database = getenv('AUTOPHP_DB_NAME') ?: '';
+        if ($this->user === '' || $this->database === '') {
+            throw new RuntimeException('AutoPHP database environment is not configured.');
+        }
+
 
           if(!$this->dbConnect){ 
 
