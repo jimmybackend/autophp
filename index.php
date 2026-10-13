@@ -11,6 +11,15 @@ if (!is_string($providedSecret) || !hash_equals($adminSecret, $providedSecret)) 
     exit('Authentication required.');
 }
 header('Cache-Control: no-store');
+foreach (['db','tabla','id','tabla2','idt','campo'] as $parameter) {
+    if (!isset($_POST[$parameter])) { continue; }
+    if (!is_string($_POST[$parameter])) { http_response_code(400); exit('Invalid input.'); }
+    $identifier = $_POST[$parameter];
+    if ($identifier !== '' && $identifier !== '0' && !preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/D', $identifier)) {
+        http_response_code(400);
+        exit('Invalid SQL identifier.');
+    }
+}
 ?>
 <!DOCTYPE html>
 
