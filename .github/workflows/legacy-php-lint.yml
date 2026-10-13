@@ -1,0 +1,24 @@
+name: Legacy PHP syntax checks
+on:
+  push:
+    branches: [main, autophp-maintenance-2026]
+  pull_request:
+jobs:
+  php-lint:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mysqli, zip
+          coverage: none
+      - name: Check PHP syntax
+        run: |
+          for file in index.php db.php dbclass.php dbclass2.php install.php; do
+            php -l "$file"
+          done
+      - name: Verify installer prerequisites
+        run: php install.php --check
